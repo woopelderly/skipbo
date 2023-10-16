@@ -1,8 +1,6 @@
 #include "skipbo.h"
 #include "version.h"
 
-#include <array>
-
 int main()
 {
     std::cout << version::GetSemanticVersion() << '\n';
@@ -11,9 +9,9 @@ int main()
     // std::cout << skipbo.m_deck << '\n';
     std::vector< Player > players( 2 );
     int piles_dealt{};
-    for( auto magic_pile : deal_magic_piles( game_state, static_cast< int >( players.size() ) ) )
+    for( auto Magic_pile : deal_magic_piles( game_state, static_cast< int >( players.size() ) ) )
     {
-        players.at( piles_dealt++ ).m_magic_pile = std::move( magic_pile );
+        players.at( piles_dealt++ ).m_magic_pile = std::move( Magic_pile );
     }
 
     // Loop bouncing between players

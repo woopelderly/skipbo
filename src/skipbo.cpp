@@ -8,6 +8,11 @@ std::ostream& operator<<( std::ostream& stream, Card const& card )
     return stream << ( card.m_value == Card::s_skipbo ? "SkipBo" : std::to_string( card.m_value ) );
 }
 
+bool operator==( Card const& lhs, Card const& rhs )
+{
+    return lhs.m_value == rhs.m_value;
+}
+
 Skipbo::Skipbo() :
     m_deck{ [] {
         std::vector< Card > deck( 162, Card{ Card::s_skipbo } );
@@ -29,7 +34,7 @@ Skipbo::Skipbo() :
 {
 }
 
-std::ostream& operator<<( std::ostream& stream, Skipbo::deck const& deck )
+std::ostream& operator<<( std::ostream& stream, Skipbo::Deck const& deck )
 {
     int count{};
     for( auto const& card : deck )
@@ -43,7 +48,7 @@ std::ostream& operator<<( std::ostream& stream, Skipbo::deck const& deck )
     return stream;
 }
 
-void shuffle( Skipbo::deck& deck )
+void shuffle( Skipbo::Deck& deck )
 {
     std::random_device rd;
     std::mt19937 gen{ rd() };
@@ -57,16 +62,17 @@ Card take_card( Skipbo& game_state )
 
     if( game_state.m_deck.size() < 6 )
     {
+        shuffle( game_state.m_trash_pile );
         game_state.m_deck.insert( game_state.m_deck.end(), game_state.m_trash_pile.begin(), game_state.m_trash_pile.end() );
         game_state.m_trash_pile.clear();
-        shuffle( game_state.m_deck );
     }
+
     return card;
 }
 
-std::vector< magic_pile > deal_magic_piles( Skipbo& game_state, int const player_count, int const magic_pile_size )
+std::vector< Magic_pile > deal_magic_piles( Skipbo& game_state, int const player_count, int const magic_pile_size )
 {
-    std::vector< magic_pile > magic_piles( player_count );
+    std::vector< Magic_pile > magic_piles( player_count );
     for( auto& pile : magic_piles )
     {
         pile.reserve( magic_pile_size );
@@ -84,7 +90,7 @@ std::vector< magic_pile > deal_magic_piles( Skipbo& game_state, int const player
     return magic_piles;
 }
 
-void replenish_hand( Skipbo& game_state, Player::hand& hand )
+void replenish_hand( Skipbo& game_state, Player::Hand& hand )
 {
     while( hand.size() < Player::s_max_hand_size )
     {
