@@ -34,7 +34,6 @@ namespace
     TEST_CASE( "Skipbo" ) // NOLINT: cognitive Complexity
     {
         Skipbo test_game;
-        static std::size_t constexpr s_expected_skipbo_deck_size{ 162 };
 
         SECTION( "Ctor" )
         {
@@ -80,6 +79,39 @@ namespace
             test_game.m_deck.erase( test_game.m_deck.cbegin(), std::next( test_game.m_deck.cbegin(), 5 ) );
             CHECK( unshuffled_trash.size() == test_game.m_deck.size() );
             CHECK( unshuffled_trash != test_game.m_deck );
+        }
+
+        SECTION( "DealMagicPiles" )
+        {
+            auto const magic_piles{ deal_magic_piles( test_game, 1, 5 ) };
+            REQUIRE( 1 == magic_piles.size() );
+            CHECK( 5 == magic_piles.at( 0 ).size() );
+        }
+
+        SECTION( "DealMagicPiles_zeroPlayers" )
+        {
+            auto const magic_piles{ deal_magic_piles( test_game, 0, 5 ) };
+            CHECK( magic_piles.empty() );
+        }
+
+        SECTION( "DealMagicPiles_negativePlayers" )
+        {
+            CHECK_THROWS_AS( ( ( void )deal_magic_piles( test_game, -1, 5 ) ), std::runtime_error );
+        }
+
+        SECTION( "DealMagicPiles_negativeCardCount" )
+        {
+            CHECK_THROWS_AS( ( ( void )deal_magic_piles( test_game, 1, -5 ) ), std::runtime_error );
+        }
+
+        SECTION( "ReplenishHand_emptyHand" )
+        {
+            Player::Hand test_hand;
+            shuffle( test_game.m_deck );
+            replenish_hand( test_game, test_hand );
+            CHECK( test_hand.size() == 5 );
+            CHECK( test_game.m_deck.size() == s_expected_skipbo_deck_size - 5 );
+            CHECK( ( std::is_sorted( test_hand.begin(), test_hand.end() ) ) );
         }
     }
 }

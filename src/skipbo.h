@@ -16,6 +16,9 @@ struct Card
 
 [[nodiscard]] bool operator==( Card const& lhs, Card const& rhs );
 
+[[nodiscard]] bool operator<( Card const& lhs, Card const& rhs );
+
+static std::size_t constexpr s_expected_skipbo_deck_size{ 162 };
 struct Skipbo
 {
     Skipbo();
@@ -37,7 +40,7 @@ void shuffle( Skipbo::Deck& deck );
 [[nodiscard]] Card take_card( Skipbo& game_state );
 
 using Magic_pile = std::vector< Card >;
-[[nodiscard]] std::vector< Magic_pile > deal_magic_piles( Skipbo& game_state, int player_count = 2, int magic_pile_size = 10 );
+[[nodiscard]] std::vector< Magic_pile > deal_magic_piles( Skipbo& game_state, std::uint8_t player_count = 2U, std::uint8_t magic_pile_size = 10U );
 
 struct Player
 {

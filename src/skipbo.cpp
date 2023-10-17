@@ -13,9 +13,14 @@ bool operator==( Card const& lhs, Card const& rhs )
     return lhs.m_value == rhs.m_value;
 }
 
+bool operator<( Card const& lhs, Card const& rhs )
+{
+    return lhs.m_value < rhs.m_value;
+}
+
 Skipbo::Skipbo() :
     m_deck{ [] {
-        std::vector< Card > deck( 162, Card{ Card::s_skipbo } );
+        std::vector< Card > deck( s_expected_skipbo_deck_size, Card{ Card::s_skipbo } );
         int card_count{ 18 };
         std::fill_n( std::next( deck.begin(), card_count ), 12, Card{ 1 } );
         std::fill_n( std::next( deck.begin(), card_count += 12 ), 12, Card{ 2 } );
@@ -70,15 +75,23 @@ Card take_card( Skipbo& game_state )
     return card;
 }
 
-std::vector< Magic_pile > deal_magic_piles( Skipbo& game_state, int const player_count, int const magic_pile_size )
+std::vector< Magic_pile > deal_magic_piles( Skipbo& game_state, std::uint8_t const player_count, std::uint8_t const magic_pile_size )
 {
+    if( auto const cards_required{ ( player_count * 5 ) + ( player_count * magic_pile_size ) }; cards_required > s_expected_skipbo_deck_size )
+    {
+        throw std::runtime_error( "Cannot deal more than 162 cards. players: " +
+                                  std::to_string( player_count ) + ", magic pile size: " + std::to_string( magic_pile_size ) +
+                                  ", cards for players' hands: " + std::to_string( player_count * 5 ) +
+                                  ", total cards required: " + std::to_string( cards_required ) );
+    }
+
     std::vector< Magic_pile > magic_piles( player_count );
     for( auto& pile : magic_piles )
     {
         pile.reserve( magic_pile_size );
     }
 
-    int cards_dealt{};
+    std::uint8_t cards_dealt{};
     while( cards_dealt++ < magic_pile_size )
     {
         for( auto& pile : magic_piles )
