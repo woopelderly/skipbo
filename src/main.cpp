@@ -20,7 +20,7 @@ void prepareSettings( SkipboApp::Settings* const settings )
 {
     settings->setMultiTouchEnabled( false );
     settings->setWindowSize( 800, 600 );
-    settings->setFrameRate( 30.0F );
+    settings->setFrameRate( 10.0F );
     settings->setTitle( "Skipbo v" + version::GetSemanticVersion() );
 }
 

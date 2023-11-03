@@ -2,6 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
+
 namespace
 {
     TEST_CASE( "Card" )
@@ -111,6 +113,26 @@ namespace
             replenish_hand( test_game, test_hand );
             CHECK( test_hand.size() == 5 );
             CHECK( test_game.m_deck.size() == s_expected_skipbo_deck_size - 5 );
+            CHECK( ( std::is_sorted( test_hand.begin(), test_hand.end() ) ) );
+        }
+
+        SECTION( "ReplenishHand_fullHand" )
+        {
+            Player::Hand test_hand( 5 );
+            shuffle( test_game.m_deck );
+            replenish_hand( test_game, test_hand );
+            CHECK( test_hand.size() == 5 );
+            CHECK( test_game.m_deck.size() == s_expected_skipbo_deck_size );
+            CHECK( ( std::is_sorted( test_hand.begin(), test_hand.end() ) ) );
+        }
+
+        SECTION( "ReplenishHand_partialHand" )
+        {
+            Player::Hand test_hand( 2 );
+            shuffle( test_game.m_deck );
+            replenish_hand( test_game, test_hand );
+            CHECK( test_hand.size() == 5 );
+            CHECK( test_game.m_deck.size() == s_expected_skipbo_deck_size - 3 );
             CHECK( ( std::is_sorted( test_hand.begin(), test_hand.end() ) ) );
         }
     }

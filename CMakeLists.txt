@@ -9,7 +9,7 @@ file( GLOB_RECURSE files src/*.h src/*.cpp )
 list( FILTER files EXCLUDE REGEX .*src/main.cpp )
 
 add_library( ${PROJECT_NAME}-object OBJECT ${files} )
-target_compile_features( ${PROJECT_NAME}-object PRIVATE cxx_std_20 )
+target_compile_features( ${PROJECT_NAME}-object PRIVATE cxx_std_20 ) #TODO when cmake is ran, i am seeing the compiler flags -std=gnu++23 and -std=c++17.  I need to figure out why c++17 is getting added and remove it.
 
 # add_executable( ${PROJECT_NAME} $<TARGET_OBJECTS:${PROJECT_NAME}-object> src/main.cpp RELEASES.md )
 
