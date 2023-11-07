@@ -14,6 +14,7 @@ struct SkipboApp : ci::app::App
     void draw() override;
 
     // ci::gl::Texture2dRef m_my_image;
+    ci::gl::BatchRef m_circle_batch;
 };
 
 void prepareSettings( SkipboApp::Settings* const settings )
@@ -27,10 +28,19 @@ void prepareSettings( SkipboApp::Settings* const settings )
 void SkipboApp::setup()
 {
     // m_my_image = ci::gl::Texture::create( cinder::loadImage( loadResource( "res/Costa-Rican-Frog.jpg" ) ) );
+    ci::gl::GlslProgRef solidShader{ ci::gl::getStockShader( ci::gl::ShaderDef().color() ) };
+
+    m_circle_batch = ci::gl::Batch::create(
+        ci::geom::Circle()
+            .radius( 30 ),
+        solidShader );
 }
 
 void SkipboApp::update()
 {
+    // ci::gl::bindStockShader( ci::gl::ShaderDef().color() );
+    // ci::gl::color( 1, 0, 0 );
+    // ci::gl::drawSolidCircle( ci::vec2( 100, 100 ), 50 );
 }
 
 void SkipboApp::draw()
@@ -39,6 +49,18 @@ void SkipboApp::draw()
     // ci::gl::clear( ci::Color( gray_value, gray_value, gray_value ), true );
 
     // ci::gl::draw( m_my_image, getWindowBounds() );
+
+    ci::gl::clear();
+
+    for( float angle{}; angle < 2.0F * M_PI; angle += 0.01F )
+    {
+        ci::gl::pushModelMatrix();
+        ci::gl::translate(
+            getWindowCenter() + 200.0F * ci::vec2{ sin( angle ), cos( angle ) } );
+        ci::gl::color( ci::Color( ci::CM_HSV, angle / ( 2.0F * M_PI ), 1, 1 ) );
+        m_circle_batch->draw();
+        ci::gl::popModelMatrix();
+    }
 }
 
 CINDER_APP( SkipboApp, ci::app::RendererGl, prepareSettings )
