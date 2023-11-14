@@ -4,14 +4,11 @@ file( STRINGS RELEASES.md releases )
 list( GET releases 0 ver )
 project( skipbo VERSION ${ver} )
 
-
 file( GLOB_RECURSE files src/*.h src/*.cpp )
 list( FILTER files EXCLUDE REGEX .*src/main.cpp )
 
 add_library( ${PROJECT_NAME}-object OBJECT ${files} )
-target_compile_features( ${PROJECT_NAME}-object PRIVATE cxx_std_20 ) #TODO when cmake is ran, i am seeing the compiler flags -std=gnu++23 and -std=c++17.  I need to figure out why c++17 is getting added and remove it.
-
-# add_executable( ${PROJECT_NAME} $<TARGET_OBJECTS:${PROJECT_NAME}-object> src/main.cpp RELEASES.md )
+target_compile_features( ${PROJECT_NAME}-object PRIVATE cxx_std_20 )
 
 configure_file( src/version.h.in generated_files/version.h )
 target_include_directories( ${PROJECT_NAME}-object PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated_files" )
@@ -25,7 +22,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable( Catch2 )
 
 file( GLOB_RECURSE testfiles src/*.hh src/*.cc )
-# add_executable( ${PROJECT_NAME}-tests $<TARGET_OBJECTS:${PROJECT_NAME}-object> ${testfiles} )
 
 get_filename_component( CINDER_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../Cinder/" ABSOLUTE )
 get_filename_component( APP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/" ABSOLUTE )
