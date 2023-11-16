@@ -28,11 +28,45 @@ void prepareSettings( SkipboApp::Settings* const settings )
 void SkipboApp::setup()
 {
     // m_my_image = ci::gl::Texture::create( cinder::loadImage( loadResource( "res/Costa-Rican-Frog.jpg" ) ) );
-    ci::gl::GlslProgRef solidShader{ ci::gl::getStockShader( ci::gl::ShaderDef().color() ) };
+    // ci::gl::GlslProgRef solidShader{ ci::gl::getStockShader( ci::gl::ShaderDef().color() ) };
+    // GlslProgRef solidShader = gl::GlslProg::create(
+    //     loadAsset( "solidColor.vert" ),
+    //     loadAsset( "solidColor.frag" ) );
 
+    ci::gl::GlslProgRef solidShader
+    {
+        ci::gl::GlslProg::create(
+            // Vertex code
+            CI_GLSL(
+                150,
+                uniform mat4 ciModelViewProjection;
+
+                in vec4 ciPosition;
+                in vec4 ciColor;
+
+                out lowp vec4 Color;
+
+                void main( void ) {
+                    gl_Position = ciModelViewProjection * ciPosition;
+                    Color       = ciColor;
+                } ),
+            // Fragment code
+            CI_GLSL(
+                150,
+                in vec4 Color;
+                out vec4 oColor;
+
+                void main( void ) {
+                    oColor = Color;
+                } ) )
+    };
+
+    ci::ColorAf green( 0, 1, 0 );
+    ci::ColorAf blue( 0, 0, 1 );
     m_circle_batch = ci::gl::Batch::create(
-        ci::geom::Circle()
-            .radius( 30 ),
+        ci::geom::Rect()
+            .colors( green, green, blue, blue )
+            .rect( ci::Rectf( -200, -10, 15, 10 ) ),
         solidShader );
 }
 
@@ -52,14 +86,13 @@ void SkipboApp::draw()
 
     ci::gl::clear();
 
-    for( float angle{}; angle < 2.0F * M_PI; angle += 0.01F )
+    for( float angle{}; angle < 2.0F * M_PI; angle += 0.2F )
     {
-        ci::gl::pushModelMatrix();
+        ci::gl::ScopedModelMatrix scpModelMtx;
         ci::gl::translate(
             getWindowCenter() + 200.0F * ci::vec2{ sin( angle ), cos( angle ) } );
         ci::gl::color( ci::Color( ci::CM_HSV, angle / ( 2.0F * M_PI ), 1, 1 ) );
         m_circle_batch->draw();
-        ci::gl::popModelMatrix();
     }
 }
 
