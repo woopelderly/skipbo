@@ -115,6 +115,7 @@ void replenish_hand( Skipbo& game_state, Player::Hand& hand )
 void show_hand( Player const& player )
 {
     std::cout << "hand: " << player.m_hand << '\n';
+    //@TODO need to to cinder stuff here.
 }
 
 void show_play_piles( Skipbo const& game_state )
@@ -130,6 +131,7 @@ void show_play_piles( Skipbo const& game_state )
             std::cout << "Pile 1: " << play_pile << '\n';
         }
     }
+    //@TODO need to to cinder stuff here.
 }
 
 void show_discard_piles( Player const& player )
@@ -137,9 +139,23 @@ void show_discard_piles( Player const& player )
     for( auto const& discard_pile : player.m_discards )
     {
     }
+    //@TODO need to to cinder stuff here.
 }
 
 void take_turn( Skipbo& game_state, Player& player )
 {
     replenish_hand( game_state, player.m_hand );
+
+    // for a turn
+    // replenish hand
+    // show hand
+    // show magic pile
+    // show discard piles
+    // show play piles
+
+    // Person somehow takes a card from their hand and adds to play pile or not
+
+    // Replenish had if it goes empty and haven't discarded
+
+    // End turn by taking a card from hand and add to discard
 }
