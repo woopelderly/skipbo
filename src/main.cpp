@@ -7,6 +7,8 @@
 #include <cinder/gl/Texture.h>
 #include <cinder/gl/gl.h>
 
+#include <array>
+
 struct SkipboApp : ci::app::App
 {
     void setup() override;
@@ -75,7 +77,7 @@ void SkipboApp::setup()
     ci::gl::enableDepthWrite();
     ci::gl::enableDepthRead();
 
-    m_cam.lookAt( ci::vec3( 250, 200, 500 ), vec3( 0 ) );
+    m_cam.lookAt( ci::vec3( 250, 200, 500 ), ci::vec3( 0 ) );
 
     ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -134,15 +136,17 @@ void SkipboApp::draw()
             .positions()
             .colors( 3 ) );
 
+    // clang-format off
     // Create the points of our cube
     ci::vec3 v0{ -100, -100, -100 };
-    ci::vec3 v1{ 100, -100, -100 };
-    ci::vec3 v2{ 100, 100, -100 };
-    ci::vec3 v3{ -100, 100, -100 };
-    ci::vec3 v4{ -100, -100, 100 };
-    ci::vec3 v5{ 100, -100, 100 };
-    ci::vec3 v6{ 100, 100, 100 };
-    ci::vec3 v7{ -100, 100, 100 };
+    ci::vec3 v1{  100, -100, -100 };
+    ci::vec3 v2{  100,  100, -100 };
+    ci::vec3 v3{ -100,  100, -100 };
+    ci::vec3 v4{ -100, -100,  100 };
+    ci::vec3 v5{  100, -100,  100 };
+    ci::vec3 v6{  100,  100,  100 };
+    ci::vec3 v7{ -100,  100,  100 };
+    // clang-format on
 
     // Create the colors for each vertex
     ci::Color c0{ 0, 0, 0 };
@@ -154,7 +158,12 @@ void SkipboApp::draw()
     ci::Color c6{ 1, 1, 1 };
     ci::Color c7{ 0, 1, 1 };
 
-    std::array < std::array <
+    // clang-format off
+    std::array< std::array< ci::vec3, 4 >, 6 > faces{ { 
+        { v0, v1, v2, v3 }, { v3, v2, v6, v7 }, { v7, v6, v5, v4 }, 
+        { v4, v5, v1, v0 }, { v5, v6, v2, v1 }, { v7, v4, v0, v3 } 
+    } };
+    // clang-format on
 }
 
 CINDER_APP( SkipboApp, ci::app::RendererGl, prepareSettings )
