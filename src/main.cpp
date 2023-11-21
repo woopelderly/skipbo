@@ -138,32 +138,66 @@ void SkipboApp::draw()
 
     // clang-format off
     // Create the points of our cube
-    ci::vec3 v0{ -100, -100, -100 };
-    ci::vec3 v1{  100, -100, -100 };
-    ci::vec3 v2{  100,  100, -100 };
-    ci::vec3 v3{ -100,  100, -100 };
-    ci::vec3 v4{ -100, -100,  100 };
-    ci::vec3 v5{  100, -100,  100 };
-    ci::vec3 v6{  100,  100,  100 };
-    ci::vec3 v7{ -100,  100,  100 };
+    ci::vec3 constexpr v0{ -100, -100, -100 };
+    ci::vec3 constexpr v1{  100, -100, -100 };
+    ci::vec3 constexpr v2{  100,  100, -100 };
+    ci::vec3 constexpr v3{ -100,  100, -100 };
+    ci::vec3 constexpr v4{ -100, -100,  100 };
+    ci::vec3 constexpr v5{  100, -100,  100 };
+    ci::vec3 constexpr v6{  100,  100,  100 };
+    ci::vec3 constexpr v7{ -100,  100,  100 };
     // clang-format on
 
     // Create the colors for each vertex
-    ci::Color c0{ 0, 0, 0 };
-    ci::Color c1{ 1, 0, 0 };
-    ci::Color c2{ 1, 1, 0 };
-    ci::Color c3{ 0, 1, 0 };
-    ci::Color c4{ 0, 0, 1 };
-    ci::Color c5{ 1, 0, 1 };
-    ci::Color c6{ 1, 1, 1 };
-    ci::Color c7{ 0, 1, 1 };
+    ci::Color const c0{ 0, 0, 0 };
+    ci::Color const c1{ 1, 0, 0 };
+    ci::Color const c2{ 1, 1, 0 };
+    ci::Color const c3{ 0, 1, 0 };
+    ci::Color const c4{ 0, 0, 1 };
+    ci::Color const c5{ 1, 0, 1 };
+    ci::Color const c6{ 1, 1, 1 };
+    ci::Color const c7{ 0, 1, 1 };
 
     // clang-format off
-    std::array< std::array< ci::vec3, 4 >, 6 > faces{ { 
+    std::array< std::array< ci::vec3, 4 >, 6 > constexpr faces{ { 
         { v0, v1, v2, v3 }, { v3, v2, v6, v7 }, { v7, v6, v5, v4 }, 
         { v4, v5, v1, v0 }, { v5, v6, v2, v1 }, { v7, v4, v0, v3 } 
     } };
+
+    std::array< std::array< ci::Color, 4 >, 6> colors { {
+        {c0, c1, c2, c3}, {c3, c2, c6, c7}, {c7, c6, c5, c4},
+        {c4, c5, c1, c0}, {c5, c6, c2, c1}, {c7, c4, c0, c3}
+    } };
     // clang-format on
+
+    auto const append_to_mesh = [ & ]( ci::vec3 const& vec, ci::Color const& color ) {
+        m_mesh.appendPosition( vec );
+        m_mesh.appendColorRgb( color );
+    };
+
+    for( int i{}; i < 6; ++i )
+    {
+        append_to_mesh( faces.at( i ).at( 0 ), colors.at( i ).at( 0 ) );
+        append_to_mesh( faces.at( i ).at( 1 ), colors.at( i ).at( 1 ) );
+        append_to_mesh( faces.at( i ).at( 2 ), colors.at( i ).at( 2 ) );
+        append_to_mesh( faces.at( i ).at( 3 ), colors.at( i ).at( 3 ) );
+
+        auto numberVertices{ m_mesh.getNumVertices() };
+
+        m_mesh.appendTriangle( numberVertices - 4,
+                               numberVertices - 3,
+                               numberVertices - 2 );
+
+        m_mesh.appendTriangle( numberVertices - 4,
+                               numberVertices - 2,
+                               numberVertices - 1 );
+    }
+
+    ci::gl::setMatrices( m_cam );
+    ci::gl::ScopedModelMatrix matrix;
+    // ci::gl::pushModelView();
+    ci::gl::draw( m_mesh );
+    // ci::gl::popModelView();
 }
 
 CINDER_APP( SkipboApp, ci::app::RendererGl, prepareSettings )
