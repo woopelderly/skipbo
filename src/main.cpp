@@ -8,12 +8,15 @@
 #include <cinder/gl/gl.h>
 
 #include <array>
+#include <iostream>
 
 struct SkipboApp : ci::app::App
 {
     void setup() override;
     void update() override;
     void draw() override;
+
+    void append_to_mesh( ci::vec3 const& vec, ci::Color const& color );
 
     // ci::gl::Texture2dRef m_my_image;
     // ci::gl::BatchRef m_circle_batch;
@@ -24,7 +27,7 @@ struct SkipboApp : ci::app::App
 void prepareSettings( SkipboApp::Settings* const settings )
 {
     settings->setMultiTouchEnabled( false );
-    settings->setWindowSize( 800, 600 );
+    settings->setWindowSize( 640, 480 );
     settings->setFrameRate( 10.0F );
     settings->setTitle( "Skipbo v" + version::GetSemanticVersion() );
 }
@@ -99,11 +102,64 @@ void SkipboApp::setup()
     // m_mesh.appendTriangle( 1, 2, 0 );
 }
 
+void SkipboApp::append_to_mesh( ci::vec3 const& vec, ci::Color const& color )
+{
+    m_mesh.appendPosition( vec );
+    m_mesh.appendColorRgb( color );
+}
+
 void SkipboApp::update()
 {
     // ci::gl::bindStockShader( ci::gl::ShaderDef().color() );
     // ci::gl::color( 1, 0, 0 );
     // ci::gl::drawSolidCircle( ci::vec2( 100, 100 ), 50 );
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    auto const numberVertices{ m_mesh.getNumVertices() };
+    if( numberVertices == 0 )
+    {
+        std::cerr << "vertices is zero\n";
+        return;
+    }
+
+    ci::Color* const col{ m_mesh.getColors< 3 >() };
+    ci::vec3* const vec{ m_mesh.getPositions< 3 >() };
+
+    std::size_t j{};
+
+    m_mesh.clear();
+
+    float const sinInc{ static_cast< float >( sin( getElapsedSeconds() ) ) };
+    float const cosInc{ static_cast< float >( cos( getElapsedSeconds() ) ) };
+
+    while( j < numberVertices )
+    {
+        auto const mult{ 30.0F };
+        vec[ j ].x -= sinInc;
+        vec[ j + 1 ].x += sinInc;
+        vec[ j + 2 ].x += sinInc * mult;
+        vec[ j + 3 ].x -= sinInc * mult;
+        vec[ j ].y -= cosInc;
+        vec[ j + 1 ].y += cosInc;
+        vec[ j + 2 ].y += cosInc * mult;
+        vec[ j + 3 ].y -= cosInc * mult;
+
+        append_to_mesh( vec[ j ], col[ j ] );
+        append_to_mesh( vec[ j + 1 ], col[ j + 1 ] );
+        append_to_mesh( vec[ j + 2 ], col[ j + 2 ] );
+        append_to_mesh( vec[ j + 3 ], col[ j + 3 ] );
+
+        auto const vIdx0{ j };
+        auto const vIdx1{ j + 1 };
+        auto const vIdx2{ j + 2 };
+        auto const vIdx3{ j + 3 };
+
+        m_mesh.appendTriangle( vIdx0, vIdx1, vIdx2 );
+        m_mesh.appendTriangle( vIdx0, vIdx2, vIdx3 );
+
+        j += 4;
+    }
 }
 
 void SkipboApp::draw()
@@ -170,11 +226,6 @@ void SkipboApp::draw()
     } };
     // clang-format on
 
-    auto const append_to_mesh = [ & ]( ci::vec3 const& vec, ci::Color const& color ) {
-        m_mesh.appendPosition( vec );
-        m_mesh.appendColorRgb( color );
-    };
-
     for( int i{}; i < 6; ++i )
     {
         append_to_mesh( faces.at( i ).at( 0 ), colors.at( i ).at( 0 ) );
@@ -182,7 +233,9 @@ void SkipboApp::draw()
         append_to_mesh( faces.at( i ).at( 2 ), colors.at( i ).at( 2 ) );
         append_to_mesh( faces.at( i ).at( 3 ), colors.at( i ).at( 3 ) );
 
-        auto numberVertices{ m_mesh.getNumVertices() };
+        auto const numberVertices{ m_mesh.getNumVertices() };
+
+        // std::cerr << "numberVertices: " << numberVertices << '\n';
 
         m_mesh.appendTriangle( numberVertices - 4,
                                numberVertices - 3,
@@ -193,11 +246,13 @@ void SkipboApp::draw()
                                numberVertices - 1 );
     }
 
+    update();
+
     ci::gl::setMatrices( m_cam );
-    ci::gl::ScopedModelMatrix matrix;
-    // ci::gl::pushModelView();
+    // ci::gl::ScopedModelMatrix matrix;
+    ci::gl::pushModelView();
     ci::gl::draw( m_mesh );
-    // ci::gl::popModelView();
+    ci::gl::popModelView();
 }
 
 CINDER_APP( SkipboApp, ci::app::RendererGl, prepareSettings )
