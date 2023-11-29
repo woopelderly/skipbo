@@ -2,6 +2,7 @@
 #include "version.h"
 
 #include <cinder/ImageIo.h>
+#include <cinder/ObjLoader.h>
 #include <cinder/app/App.h>
 #include <cinder/app/RendererGl.h>
 #include <cinder/gl/Texture.h>
@@ -16,12 +17,16 @@ struct SkipboApp : ci::app::App
     void update() override;
     void draw() override;
 
-    void append_to_mesh( ci::vec3 const& vec, ci::Color const& color );
+    // void append_to_mesh( ci::vec3 const& vec, ci::Color const& color );
+    // void append_to_mesh( ci::vec3 const& vec, ci::vec2 const& texCoord );
 
     // ci::gl::Texture2dRef m_my_image;
     // ci::gl::BatchRef m_circle_batch;
-    ci::TriMesh m_mesh;
+    ci::gl::BatchRef m_batch;
+    ci::TriMeshRef m_mesh;
     ci::CameraPersp m_cam;
+    ci::gl::Texture2dRef m_tex;
+    ci::gl::GlslProgRef m_glsl; // OpenGL Shading Language
 };
 
 void prepareSettings( SkipboApp::Settings* const settings )
@@ -80,7 +85,14 @@ void SkipboApp::setup()
     ci::gl::enableDepthWrite();
     ci::gl::enableDepthRead();
 
-    m_cam.lookAt( ci::vec3( 250, 200, 500 ), ci::vec3( 0 ) );
+    // auto image{ ci::loadImage( loadResource( "/home/jshuman/src/skipbo/res/card-art.png" ) ) };
+    // m_tex = ci::gl::Texture2d::create( image );
+
+    // m_cam.lookAt( ci::vec3( 250, 200, 500 ), ci::vec3( 0 ) );
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    m_cam.lookAt( ci::vec3( 2.5, 2.0, 3.0 ), ci::vec3( 0 ) );
 
     ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -102,11 +114,17 @@ void SkipboApp::setup()
     // m_mesh.appendTriangle( 1, 2, 0 );
 }
 
-void SkipboApp::append_to_mesh( ci::vec3 const& vec, ci::Color const& color )
-{
-    m_mesh.appendPosition( vec );
-    m_mesh.appendColorRgb( color );
-}
+// void SkipboApp::append_to_mesh( ci::vec3 const& vec, ci::Color const& color )
+// {
+//     m_mesh.appendPosition( vec );
+//     m_mesh.appendColorRgb( color );
+// }
+
+// void SkipboApp::append_to_mesh( ci::vec3 const& vec, ci::vec2 const& texCoord )
+// {
+//     m_mesh.appendPosition( vec );
+//     m_mesh.appendTexCoord( texCoord );
+// }
 
 void SkipboApp::update()
 {
@@ -116,50 +134,55 @@ void SkipboApp::update()
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    auto const numberVertices{ m_mesh.getNumVertices() };
-    if( numberVertices == 0 )
-    {
-        std::cerr << "vertices is zero\n";
-        return;
-    }
+    // auto const numberVertices{ m_mesh.getNumVertices() };
+    // if( numberVertices == 0 )
+    // {
+    //     std::cerr << "vertices is zero\n";
+    //     return;
+    // }
 
-    ci::Color* const col{ m_mesh.getColors< 3 >() };
-    ci::vec3* const vec{ m_mesh.getPositions< 3 >() };
+    // // ci::Color* const col{ m_mesh.getColors< 3 >() };
+    // ci::vec2* const texCoords{ m_mesh.getTexCoords0< 2 >() };
+    // ci::vec3* const vec{ m_mesh.getPositions< 3 >() };
 
-    std::size_t j{};
+    // std::size_t j{};
 
-    m_mesh.clear();
+    // m_mesh.clear();
 
-    float const sinInc{ static_cast< float >( sin( getElapsedSeconds() ) ) };
-    float const cosInc{ static_cast< float >( cos( getElapsedSeconds() ) ) };
+    // float const sinInc{ static_cast< float >( sin( getElapsedSeconds() ) ) };
+    // float const cosInc{ static_cast< float >( cos( getElapsedSeconds() ) ) };
 
-    while( j < numberVertices )
-    {
-        auto const mult{ 30.0F };
-        vec[ j ].x -= sinInc;
-        vec[ j + 1 ].x += sinInc;
-        vec[ j + 2 ].x += sinInc * mult;
-        vec[ j + 3 ].x -= sinInc * mult;
-        vec[ j ].y -= cosInc;
-        vec[ j + 1 ].y += cosInc;
-        vec[ j + 2 ].y += cosInc * mult;
-        vec[ j + 3 ].y -= cosInc * mult;
+    // while( j < numberVertices )
+    // {
+    //     auto const mult{ 30.0F };
+    //     vec[ j ].x -= sinInc;
+    //     vec[ j + 1 ].x += sinInc;
+    //     vec[ j + 2 ].x += sinInc * mult;
+    //     vec[ j + 3 ].x -= sinInc * mult;
+    //     vec[ j ].y -= cosInc;
+    //     vec[ j + 1 ].y += cosInc;
+    //     vec[ j + 2 ].y += cosInc * mult;
+    //     vec[ j + 3 ].y -= cosInc * mult;
 
-        append_to_mesh( vec[ j ], col[ j ] );
-        append_to_mesh( vec[ j + 1 ], col[ j + 1 ] );
-        append_to_mesh( vec[ j + 2 ], col[ j + 2 ] );
-        append_to_mesh( vec[ j + 3 ], col[ j + 3 ] );
+    // // append_to_mesh( vec[ j ], col[ j ] );
+    // // append_to_mesh( vec[ j + 1 ], col[ j + 1 ] );
+    // // append_to_mesh( vec[ j + 2 ], col[ j + 2 ] );
+    // // append_to_mesh( vec[ j + 3 ], col[ j + 3 ] );
+    // append_to_mesh( vec[ j ], texCoords[ j ] );
+    // append_to_mesh( vec[ j + 1 ], texCoords[ j + 1 ] );
+    // append_to_mesh( vec[ j + 2 ], texCoords[ j + 2 ] );
+    // append_to_mesh( vec[ j + 3 ], texCoords[ j + 3 ] );
 
-        auto const vIdx0{ j };
-        auto const vIdx1{ j + 1 };
-        auto const vIdx2{ j + 2 };
-        auto const vIdx3{ j + 3 };
+    // auto const vIdx0{ j };
+    // auto const vIdx1{ j + 1 };
+    // auto const vIdx2{ j + 2 };
+    // auto const vIdx3{ j + 3 };
 
-        m_mesh.appendTriangle( vIdx0, vIdx1, vIdx2 );
-        m_mesh.appendTriangle( vIdx0, vIdx2, vIdx3 );
+    // m_mesh.appendTriangle( vIdx0, vIdx1, vIdx2 );
+    // m_mesh.appendTriangle( vIdx0, vIdx2, vIdx3 );
 
-        j += 4;
-    }
+    // j += 4;
+    //}
 }
 
 void SkipboApp::draw()
@@ -185,74 +208,112 @@ void SkipboApp::draw()
     // ci::gl::draw( m_mesh );
     //////////////////////////////////////////////////////////////////////////////////////
 
-    ci::gl::clear( ci::Color::white() );
+    // ci::gl::clear();
+    // ci::gl::clear( ci::Color::white() );
 
-    m_mesh = ci::TriMesh(
-        ci::TriMesh::Format()
-            .positions()
-            .colors( 3 ) );
+    // m_mesh = ci::TriMesh(
+    //     ci::TriMesh::Format()
+    //         .positions()
+    //         .colors( 3 ) );
 
-    // clang-format off
-    // Create the points of our cube
-    ci::vec3 constexpr v0{ -100, -100, -100 };
-    ci::vec3 constexpr v1{  100, -100, -100 };
-    ci::vec3 constexpr v2{  100,  100, -100 };
-    ci::vec3 constexpr v3{ -100,  100, -100 };
-    ci::vec3 constexpr v4{ -100, -100,  100 };
-    ci::vec3 constexpr v5{  100, -100,  100 };
-    ci::vec3 constexpr v6{  100,  100,  100 };
-    ci::vec3 constexpr v7{ -100,  100,  100 };
-    // clang-format on
+    // m_mesh = ci::TriMesh(
+    //     ci::TriMesh::Format()
+    //         .positions()
+    //         .texCoords( 2 ) );
 
-    // Create the colors for each vertex
-    ci::Color const c0{ 0, 0, 0 };
-    ci::Color const c1{ 1, 0, 0 };
-    ci::Color const c2{ 1, 1, 0 };
-    ci::Color const c3{ 0, 1, 0 };
-    ci::Color const c4{ 0, 0, 1 };
-    ci::Color const c5{ 1, 0, 1 };
-    ci::Color const c6{ 1, 1, 1 };
-    ci::Color const c7{ 0, 1, 1 };
+    // // clang-format off
+    // // Create the points of our cube
+    // ci::vec3 constexpr v0{ -100, -100, -100 };
+    // ci::vec3 constexpr v1{  100, -100, -100 };
+    // ci::vec3 constexpr v2{  100,  100, -100 };
+    // ci::vec3 constexpr v3{ -100,  100, -100 };
+    // ci::vec3 constexpr v4{ -100, -100,  100 };
+    // ci::vec3 constexpr v5{  100, -100,  100 };
+    // ci::vec3 constexpr v6{  100,  100,  100 };
+    // ci::vec3 constexpr v7{ -100,  100,  100 };
+    // // clang-format on
 
-    // clang-format off
-    std::array< std::array< ci::vec3, 4 >, 6 > constexpr faces{ { 
-        { v0, v1, v2, v3 }, { v3, v2, v6, v7 }, { v7, v6, v5, v4 }, 
-        { v4, v5, v1, v0 }, { v5, v6, v2, v1 }, { v7, v4, v0, v3 } 
-    } };
+    // // Create the colors for each vertex
+    // ci::Color const c0{ 0, 0, 0 };
+    // ci::Color const c1{ 1, 0, 0 };
+    // ci::Color const c2{ 1, 1, 0 };
+    // ci::Color const c3{ 0, 1, 0 };
+    // ci::Color const c4{ 0, 0, 1 };
+    // ci::Color const c5{ 1, 0, 1 };
+    // ci::Color const c6{ 1, 1, 1 };
+    // ci::Color const c7{ 0, 1, 1 };
 
-    std::array< std::array< ci::Color, 4 >, 6> colors { {
-        {c0, c1, c2, c3}, {c3, c2, c6, c7}, {c7, c6, c5, c4},
-        {c4, c5, c1, c0}, {c5, c6, c2, c1}, {c7, c4, c0, c3}
-    } };
-    // clang-format on
+    // // Create the texture coordinates for each vertex
+    // ci::vec2 t0{ 0, 0 };
+    // ci::vec2 t1{ 1, 0 };
+    // ci::vec2 t2{ 1, 1 };
+    // ci::vec2 t3{ 0, 1 };
 
-    for( int i{}; i < 6; ++i )
+    // // clang-format off
+    // std::array< std::array< ci::vec3, 4 >, 6 > constexpr faces{ {
+    //     { v0, v1, v2, v3 }, { v3, v2, v6, v7 }, { v7, v6, v5, v4 },
+    //     { v4, v5, v1, v0 }, { v5, v6, v2, v1 }, { v7, v4, v0, v3 }
+    // } };
+
+    // // std::array< std::array< ci::Color, 4 >, 6> colors { {
+    // //     {c0, c1, c2, c3}, {c3, c2, c6, c7}, {c7, c6, c5, c4},
+    // //     {c4, c5, c1, c0}, {c5, c6, c2, c1}, {c7, c4, c0, c3}
+    // // } };
+    // // clang-format on
+
+    // for( int i{}; i < 6; ++i )
+    // {
+    //     append_to_mesh( faces.at( i ).at( 0 ), t0 );
+    //     append_to_mesh( faces.at( i ).at( 1 ), t1 );
+    //     append_to_mesh( faces.at( i ).at( 2 ), t2 );
+    //     append_to_mesh( faces.at( i ).at( 3 ), t3 );
+
+    // auto const numberVertices{ m_mesh.getNumVertices() };
+
+    // // std::cerr << "numberVertices: " << numberVertices << '\n';
+
+    // m_mesh.appendTriangle( numberVertices - 4,
+    //                        numberVertices - 3,
+    //                        numberVertices - 2 );
+
+    // m_mesh.appendTriangle( numberVertices - 4,
+    //                        numberVertices - 2,
+    //                        numberVertices - 1 );
+    //}
+
+    // update();
+
+    // ci::gl::setMatrices( m_cam );
+
+    // ci::gl::ScopedGlslProg glslScope{ ci::gl::getStockShader( ci::gl::ShaderDef().texture() ) };
+    // ci::gl::ScopedTextureBind texScope{ m_tex };
+
+    // // ci::gl::ScopedModelMatrix matrix;
+    // // ci::gl::pushModelView();
+    // ci::gl::draw( m_mesh );
+    // // ci::gl::popModelView();
+
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    ci::gl::clear( ci::Color::gray( 0.2F ) );
+
+    ci::ObjLoader loader{ loadAsset( "icosahedron.obj" ) };
+    m_mesh = ci::TriMesh::create( loader );
+
+    if( !loader.getAvailableAttribs().contains( ci::geom::NORMAL ) )
     {
-        append_to_mesh( faces.at( i ).at( 0 ), colors.at( i ).at( 0 ) );
-        append_to_mesh( faces.at( i ).at( 1 ), colors.at( i ).at( 1 ) );
-        append_to_mesh( faces.at( i ).at( 2 ), colors.at( i ).at( 2 ) );
-        append_to_mesh( faces.at( i ).at( 3 ), colors.at( i ).at( 3 ) );
-
-        auto const numberVertices{ m_mesh.getNumVertices() };
-
-        // std::cerr << "numberVertices: " << numberVertices << '\n';
-
-        m_mesh.appendTriangle( numberVertices - 4,
-                               numberVertices - 3,
-                               numberVertices - 2 );
-
-        m_mesh.appendTriangle( numberVertices - 4,
-                               numberVertices - 2,
-                               numberVertices - 1 );
+        m_mesh->recalculateNormals();
     }
 
-    update();
+    auto lambert{ ci::gl::ShaderDef().lambert() };
+    m_glsl  = ci::gl::getStockShader( lambert );
+    m_batch = ci::gl::Batch::create( *m_mesh, m_glsl );
 
     ci::gl::setMatrices( m_cam );
-    // ci::gl::ScopedModelMatrix matrix;
-    ci::gl::pushModelView();
-    ci::gl::draw( m_mesh );
-    ci::gl::popModelView();
+
+    ci::gl::rotate( ci::angleAxis( getElapsedFrames() * 0.01F, ci::vec3( 0, 1, 0 ) ) );
+
+    m_batch->draw();
 }
 
 CINDER_APP( SkipboApp, ci::app::RendererGl, prepareSettings )

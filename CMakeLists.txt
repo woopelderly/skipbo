@@ -32,6 +32,7 @@ ci_make_app(
     APP_NAME    ${PROJECT_NAME}
     CINDER_PATH ${CINDER_PATH}
     SOURCES     src/main.cpp $<TARGET_OBJECTS:${PROJECT_NAME}-object> RELEASES.md
+    ASSETS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/assets"
 )
 
 target_compile_features( ${PROJECT_NAME} PRIVATE cxx_std_20 )
@@ -42,6 +43,7 @@ ci_make_app(
     CINDER_PATH ${CINDER_PATH}
     SOURCES     $<TARGET_OBJECTS:${PROJECT_NAME}-object> ${testfiles}
     LIBRARIES   Catch2
+    ASSETS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/assets"
 )
 
 target_compile_features( ${PROJECT_NAME}-tests PRIVATE cxx_std_20 )
