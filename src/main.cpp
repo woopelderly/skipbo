@@ -6,6 +6,7 @@
 #include <cinder/app/App.h>
 #include <cinder/app/RendererGl.h>
 #include <cinder/gl/Texture.h>
+#include <cinder/gl/VboMesh.h>
 #include <cinder/gl/gl.h>
 
 #include <array>
@@ -22,11 +23,16 @@ struct SkipboApp : ci::app::App
 
     // ci::gl::Texture2dRef m_my_image;
     // ci::gl::BatchRef m_circle_batch;
-    ci::gl::BatchRef m_batch;
-    ci::TriMeshRef m_mesh;
-    ci::CameraPersp m_cam;
+    // ci::gl::BatchRef m_batch;
+    // // ci::TriMesh m_mesh;
+    // // ci::TriMeshRef m_mesh;
+    // ci::gl::VboMeshRef m_mesh;
+    // ci::CameraPersp m_cam;
+    // ci::gl::Texture2dRef m_tex;
+    // ci::gl::GlslProgRef m_glsl; // OpenGL Shading Language
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ci::gl::Texture2dRef m_tex;
-    ci::gl::GlslProgRef m_glsl; // OpenGL Shading Language
 };
 
 void prepareSettings( SkipboApp::Settings* const settings )
@@ -92,7 +98,7 @@ void SkipboApp::setup()
 
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    m_cam.lookAt( ci::vec3( 2.5, 2.0, 3.0 ), ci::vec3( 0 ) );
+    // m_cam.lookAt( ci::vec3( 2.5, 2.0, 3.0 ), ci::vec3( 0 ) );
 
     ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -112,6 +118,28 @@ void SkipboApp::setup()
 
     // m_mesh.appendTriangle( 1, 3, 2 );
     // m_mesh.appendTriangle( 1, 2, 0 );
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    // ci::gl::VboMesh::Layout layout;
+    // layout.setStatic
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    auto img{ ci::loadImage( loadAsset( "card-art.png" ) ) };
+    ci::Surface bitmap( img );
+
+    ci::Area area( 0, 0, 500, 500 );
+    auto iter{ bitmap.getIter( area ) };
+    while( iter.line() )
+    {
+        while( iter.pixel() )
+        {
+            iter.r() = 255 - iter.r();
+            iter.g() = 255 - iter.g();
+            iter.b() = 255 - iter.b();
+        }
+    }
+    m_tex = ci::gl::Texture2d::create( bitmap );
 }
 
 // void SkipboApp::append_to_mesh( ci::vec3 const& vec, ci::Color const& color )
@@ -295,25 +323,30 @@ void SkipboApp::draw()
 
     //////////////////////////////////////////////////////////////////////////////////////
 
-    ci::gl::clear( ci::Color::gray( 0.2F ) );
+    // ci::gl::clear( ci::Color::gray( 0.2F ) );
 
-    ci::ObjLoader loader{ loadAsset( "icosahedron.obj" ) };
-    m_mesh = ci::TriMesh::create( loader );
+    // ci::ObjLoader loader{ loadAsset( "icosahedron.obj" ) };
+    // m_mesh = ci::TriMesh::create( loader );
 
-    if( !loader.getAvailableAttribs().contains( ci::geom::NORMAL ) )
-    {
-        m_mesh->recalculateNormals();
-    }
+    // if( !loader.getAvailableAttribs().contains( ci::geom::NORMAL ) )
+    // {
+    //     m_mesh->recalculateNormals();
+    // }
 
-    auto lambert{ ci::gl::ShaderDef().lambert() };
-    m_glsl  = ci::gl::getStockShader( lambert );
-    m_batch = ci::gl::Batch::create( *m_mesh, m_glsl );
+    // auto lambert{ ci::gl::ShaderDef().lambert() };
+    // m_glsl  = ci::gl::getStockShader( lambert );
+    // m_batch = ci::gl::Batch::create( *m_mesh, m_glsl );
 
-    ci::gl::setMatrices( m_cam );
+    // ci::gl::setMatrices( m_cam );
 
-    ci::gl::rotate( ci::angleAxis( getElapsedFrames() * 0.01F, ci::vec3( 0, 1, 0 ) ) );
+    // ci::gl::rotate( ci::angleAxis( getElapsedFrames() * 0.01F, ci::vec3( 0, 1, 0 ) ) );
 
-    m_batch->draw();
+    // m_batch->draw();
+
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    ci::gl::clear();
+    ci::gl::draw( m_tex );
 }
 
 CINDER_APP( SkipboApp, ci::app::RendererGl, prepareSettings )
